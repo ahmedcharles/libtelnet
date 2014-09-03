@@ -16,6 +16,11 @@
 
 #include "libtelnet.h"
 
+/* Win32 compatibility */
+#if defined(_WIN32)
+# define snprintf _snprintf
+#endif
+
 static const telnet_telopt_t telopts[] = {
  { TELNET_TELOPT_COMPRESS2,	TELNET_WILL, TELNET_DONT },
  { TELNET_TELOPT_ZMP,		TELNET_WILL, TELNET_DONT },
