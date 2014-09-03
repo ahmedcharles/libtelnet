@@ -31,7 +31,10 @@
 #	define poll WSAPoll
 #	define close closesocket
 #	define strdup _strdup
+
+#if !defined(_MSC_VER) || _MSC_VER < 1600 // VC 9 and prior do not define this macro
 #	define ECONNRESET WSAECONNRESET
+#endif
 #endif
 
 #include <errno.h>
@@ -109,11 +112,12 @@ static void _send(int sock, const char *buffer, unsigned int size) {
 
 	/* send data */
 	while (size > 0) {
-		if ((rs = send(sock, buffer, size, 0)) == -1) {
+		if ((rs = send(sock, buffer, size, 0)) == -1) {int foo = WSAGetLastError();
 			if (errno != EINTR && errno != ECONNRESET) {
 				fprintf(stderr, "send() failed: %s\n", strerror(errno));
 				exit(1);
 			} else {
+				fprintf(stderr, "send() failed: %s\n", strerror(errno));
 				return;
 			}
 		} else if (rs == 0) {

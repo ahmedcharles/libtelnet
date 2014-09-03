@@ -146,6 +146,8 @@ static const char *get_opt(unsigned char opt) {
 	case 85: return "COMPRESS";
 	case 86: return "COMPRESS2";
 	case 93: return "ZMP";
+	case 200: return "ATCP";
+	case 201: return "GMCP";
 	case 255: return "EXOPL";
 	default: return "unknown";
 	}
@@ -249,7 +251,7 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 		printf("%s SUB %d (%s)", conn->name, (int)ev->sub.telopt,
 				get_opt(ev->sub.telopt));
 		if (ev->sub.size > 0) {
-			printf(" [%zi bytes]: ", ev->sub.size);
+			printf(" [%Iu bytes]: ", ev->sub.size);
 			print_buffer(ev->sub.buffer, ev->sub.size);
 		}
 		printf(COLOR_NORMAL "\n");
@@ -262,7 +264,7 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 	case TELNET_EV_ZMP:
 		if (ev->zmp.argc != 0) {
 			size_t i;
-			printf("%s ZMP [%zi params]", conn->name, ev->zmp.argc);
+			printf("%s ZMP [%Iu params]", conn->name, ev->zmp.argc);
 			for (i = 0; i != ev->zmp.argc; ++i) {
 				printf(" \"");
 				print_buffer(ev->zmp.argv[i], strlen(ev->zmp.argv[i]));
@@ -279,7 +281,7 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 	/* ENVIRON/NEW-ENVIRON commands */
 	case TELNET_EV_ENVIRON: {
 		size_t i;
-		printf("%s ENVIRON (%s) [%zi parts]", conn->name, ev->environ.cmd == TELNET_ENVIRON_IS ? "IS" : ev->environ.cmd == TELNET_ENVIRON_SEND ? "SEND" : "INFO", ev->environ.size);
+		printf("%s ENVIRON (%s) [%Iu parts]", conn->name, ev->environ.cmd == TELNET_ENVIRON_IS ? "IS" : ev->environ.cmd == TELNET_ENVIRON_SEND ? "SEND" : "INFO", ev->environ.size);
 		for (i = 0; i != ev->environ.size; ++i) {
 			printf(" %s \"", ev->environ.values[i].type == TELNET_ENVIRON_VAR ? "VAR" : "USERVAR");
 			if (ev->environ.values[i].var != 0) {
@@ -298,7 +300,7 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 	}
 	case TELNET_EV_MSSP: {
 		size_t i;
-		printf("%s MSSP [%zi parts]", conn->name, ev->mssp.size);
+		printf("%s MSSP [%Iu parts]", conn->name, ev->mssp.size);
 		for (i = 0; i != ev->mssp.size; ++i) {
 			printf(" \"");
 			print_buffer(ev->mssp.values[i].var, strlen(ev->mssp.values[i].var));
@@ -467,6 +469,9 @@ int main(int argc, char **argv) {
 						exit(1);
 					}
 				}
+			} else if (pfd[0].revents & POLLHUP) {
+				printf("%s DISCONNECTED" COLOR_NORMAL "\n", server.name);
+				break;
 			}
 
 			/* read from client */
@@ -483,6 +488,9 @@ int main(int argc, char **argv) {
 						exit(1);
 					}
 				}
+			} else if (pfd[1].revents & POLLHUP) {
+				printf("%s DISCONNECTED" COLOR_NORMAL "\n", server.name);
+				break;
 			}
 		}
 
