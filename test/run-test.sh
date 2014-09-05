@@ -8,6 +8,7 @@ while [ "x$1" != "x" ] ; do
 	OUTTMP="$(basename "$1").out.tmp"
 
 	"../util/telnet-test" "$1" > "$RUNTMP"
+	dos2unix -q "$RUNTMP"
 	sed -n '/%%/,$p' < "$1" | tail -n+2 > "$OUTTMP"
 	if cmp -s "$OUTTMP" "$RUNTMP" ; then
 		echo "OK"

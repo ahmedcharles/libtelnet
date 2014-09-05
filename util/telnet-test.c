@@ -175,7 +175,7 @@ static void event_print(telnet_t *telnet, telnet_event_t *ev, void *ud) {
 
 	switch (ev->type) {
 	case TELNET_EV_DATA:
-		printf("DATA [%zi] ==> ", ev->data.size);
+		printf("DATA [%Iu] ==> ", ev->data.size);
 		print_encode(ev->data.buffer, ev->data.size);
 		printf("\n");
 		break;
@@ -206,12 +206,12 @@ static void event_print(telnet_t *telnet, telnet_event_t *ev, void *ud) {
 			/* print nothing */
 			break;
 		default:
-			printf("SUB %d (%s) [%zi]\n", (int)ev->sub.telopt, get_opt(ev->sub.telopt), ev->sub.size);
+			printf("SUB %d (%s) [%Iu]\n", (int)ev->sub.telopt, get_opt(ev->sub.telopt), ev->sub.size);
 			break;
 		}
 		break;
 	case TELNET_EV_ZMP:
-		printf("ZMP (%s) [%zi]\n", ev->zmp.argv[0], ev->zmp.argc);
+		printf("ZMP (%s) [%Iu]\n", ev->zmp.argv[0], ev->zmp.argc);
 		break;
 	case TELNET_EV_TTYPE:
 		printf("TTYPE %s %s\n", ev->ttype.cmd ? "SEND" : "IS",
@@ -219,7 +219,7 @@ static void event_print(telnet_t *telnet, telnet_event_t *ev, void *ud) {
 		break;
 	/* ENVIRON/NEW-ENVIRON commands */
 	case TELNET_EV_ENVIRON:
-		printf("ENVIRON [%zi parts] ==> %s", ev->environ.size, ev->environ.cmd == TELNET_ENVIRON_IS ? "IS" : (ev->environ.cmd == TELNET_ENVIRON_SEND ? "SEND" : "INFO"));
+		printf("ENVIRON [%Iu parts] ==> %s", ev->environ.size, ev->environ.cmd == TELNET_ENVIRON_IS ? "IS" : (ev->environ.cmd == TELNET_ENVIRON_SEND ? "SEND" : "INFO"));
 		for (i = 0; i != ev->environ.size; ++i) {
 			printf(" %s \"", ev->environ.values[i].type == TELNET_ENVIRON_VAR ? "VAR" : "USERVAR");
 			if (ev->environ.values[i].var != 0) {
@@ -237,7 +237,7 @@ static void event_print(telnet_t *telnet, telnet_event_t *ev, void *ud) {
 		printf("\n");
 		break;
 	case TELNET_EV_MSSP:
-		printf("MSSP [%zi] ==>", ev->mssp.size);
+		printf("MSSP [%Iu] ==>", ev->mssp.size);
 		for (i = 0; i != ev->mssp.size; ++i) {
 			printf(" \"");
 			print_encode(ev->mssp.values[i].var, strlen(ev->mssp.values[i].var));
