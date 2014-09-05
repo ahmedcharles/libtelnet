@@ -161,10 +161,10 @@ static void print_encode(const char *buffer, size_t size) {
 	while (in != end) {
 		if (*in == '%') {
 			printf("%%%%");
-		} else if (isprint(*in)) {
+		} else if (isprint((unsigned char)*in)) {
 			printf("%c", *in);
 		} else {
-			printf("%%%02X", *in);
+			printf("%%%02X", (unsigned char)*in);
 		}
 		++in;
 	}
@@ -180,6 +180,9 @@ static void event_print(telnet_t *telnet, telnet_event_t *ev, void *ud) {
 		printf("\n");
 		break;
 	case TELNET_EV_SEND:
+		printf("SEND [%Iu] ==> ", ev->data.size);
+		print_encode(ev->data.buffer, ev->data.size);
+		printf("\n");
 		break;
 	case TELNET_EV_IAC:
 		printf("IAC %d (%s)\n", (int)ev->iac.cmd, get_cmd(ev->iac.cmd));
